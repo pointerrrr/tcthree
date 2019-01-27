@@ -3,7 +3,7 @@ module CSharpLex where
 import Data.Char
 import Control.Monad
 import ParseLib.Abstract
-
+import Prelude hiding ((<*), (*>), (<$>), (<$))
 
 data Token = POpen    | PClose      -- parentheses     ()
            | SOpen    | SClose      -- square brackets []
@@ -18,6 +18,7 @@ data Token = POpen    | PClose      -- parentheses     ()
            | UpperId   String       -- uppercase identifiers
            | LowerId   String       -- lowercase identifiers
            | ConstInt  Int
+           | ConstChar Char
            | ConstBool Bool
            deriving (Eq, Show)
 
@@ -57,6 +58,9 @@ terminals =
 lexWhiteSpace :: Parser Char String
 lexWhiteSpace = greedy (satisfy isSpace)
 
+lexComment :: Parser Char String
+lexComment = token "//" <* greedy (satisfy (/= '\n'))
+
 lexLowerId :: Parser Char Token
 lexLowerId = (\x xs -> LowerId (x:xs)) <$> satisfy isLower <*> greedy (satisfy isAlphaNum)
 
@@ -65,6 +69,12 @@ lexUpperId = (\x xs -> UpperId (x:xs)) <$> satisfy isUpper <*> greedy (satisfy i
 
 lexConstInt :: Parser Char Token
 lexConstInt = (ConstInt . read) <$> greedy1 (satisfy isDigit)
+
+lexConstChar :: Parser Char Token
+lexConstChar = ConstChar <$ symbol '\'' <*> anySymbol <* symbol '\''
+
+lexConstBool :: Parser Char Token
+lexConstBool = ConstBool <$> (False <$ token "false" <|> True <$ token "true")
 
 lexEnum :: (String -> Token) -> [String] -> Parser Char Token
 lexEnum f xs = f <$> choice (map keyword xs)
@@ -86,6 +96,8 @@ lexToken = greedyChoice
              , lexEnum StdType stdTypes
              , lexEnum Operator operators
              , lexConstInt
+             , lexConstBool
+             , lexConstChar
              , lexLowerId
              , lexUpperId
              ]
@@ -113,13 +125,69 @@ sConst :: Parser Token Token
 sConst  = satisfy isConst
     where isConst (ConstInt  _) = True
           isConst (ConstBool _) = True
+          isConst (ConstChar _) = True
           isConst _             = False
 
-sOperator :: Parser Token Token
-sOperator = satisfy isOperator
-    where isOperator (Operator _) = True
-          isOperator _            = False
+-- start assignment 2
+-- type of operators source: https://msdn.microsoft.com/en-us/library/2bxt6kc4.aspx
 
+          
+multiplicative :: Parser Token Token
+multiplicative = satisfy isMultiplicative
+    where
+        isMultiplicative (Operator "*") = True
+        isMultiplicative (Operator "/") = True
+        isMultiplicative (Operator "%") = True
+        isMultiplicative _              = False
+          
+additive :: Parser Token Token
+additive = satisfy isAdditive
+    where 
+        isAdditive (Operator "+") = True
+        isAdditive (Operator "-") = True
+        isAdditive _              = False
+          
+relational :: Parser Token Token
+relational = satisfy isRelational
+    where
+        isRelational (Operator "<=") = True
+        isRelational (Operator "<")  = True
+        isRelational (Operator ">=") = True
+        isRelational (Operator ">")  = True
+        isRelational _               = False
+
+equality :: Parser Token Token
+equality = satisfy isEquality
+    where
+        isEquality (Operator "==") = True
+        isEquality (Operator "!=") = True
+        isEquality _               = True
+        
+bitwiseXOR :: Parser Token Token
+bitwiseXOR = satisfy isBitwiseXOR
+    where
+        isBitwiseXOR (Operator "^") = True
+        isBitwiseXOR _              = False
+        
+logicalAND :: Parser Token Token
+logicalAND = satisfy isLogicalAnd
+    where
+        isLogicalAnd (Operator "&&") = True
+        isLogicalAnd _               = False
+        
+logicalOR :: Parser Token Token
+logicalOR = satisfy isLogicalOr
+    where
+        isLogicalOr (Operator "||") = True
+        isLogicalOr _               = False
+        
+assignment :: Parser Token Token
+assignment = satisfy isAssignment
+    where
+        isAssignment (Operator "=") = True
+        isAssignment _              = False
+        
+-- end assignment 2
 
 sSemi :: Parser Token Token
 sSemi =  symbol Semicolon

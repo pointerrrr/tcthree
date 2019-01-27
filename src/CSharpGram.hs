@@ -2,7 +2,7 @@ module CSharpGram where
 
 import ParseLib.Abstract hiding (braced, bracketed, parenthesised)
 import CSharpLex
-
+import Prelude hiding ((<*), (*>), (<$>), (<$))
 
 data Class = Class Token [Member]
     deriving Show
@@ -43,9 +43,34 @@ pExprSimple =  ExprConst <$> sConst
            <|> ExprVar   <$> sLowerId
            <|> parenthesised pExpr
 
-pExpr :: Parser Token Expr
-pExpr = chainr pExprSimple (ExprOper <$> sOperator)
+-- start assignment 2 (from lecture Parser Combinators (II) )
+-- source: https://msdn.microsoft.com/en-us/library/2bxt6kc4.aspx
 
+pExpr :: Parser Token Expr
+pExpr = chainr pLogicalOR (ExprOper <$> assignment)
+
+pLogicalOR :: Parser Token Expr
+pLogicalOR = chainl pLogicalAND (ExprOper <$> logicalOR)
+
+pLogicalAND :: Parser Token Expr
+pLogicalAND = chainl pBitwiseXOR (ExprOper <$> logicalAND)
+
+pBitwiseXOR :: Parser Token Expr
+pBitwiseXOR = chainl pEquality (ExprOper <$> bitwiseXOR)
+
+pEquality :: Parser Token Expr
+pEquality = chainl pRelational (ExprOper <$> equality)
+
+pRelational :: Parser Token Expr
+pRelational = chainl pAdditive (ExprOper <$> relational)
+
+pAdditive :: Parser Token Expr
+pAdditive = chainl pMultiplicative (ExprOper <$> additive)
+
+pMultiplicative :: Parser Token Expr
+pMultiplicative = chainl pExprSimple (ExprOper <$> multiplicative)
+
+-- end assignment 2
 
 pMember :: Parser Token Member
 pMember =  MemberD <$> pDeclSemi
