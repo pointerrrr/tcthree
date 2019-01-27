@@ -1,0 +1,171 @@
+	Bsr main
+	HALT
+main:
+	LINK 4
+	LDC 2
+	LDS 0
+	LDLA 2
+	STA 0
+	LDS 0
+	LDLA 1
+	STA 0
+	AJS -1
+	LDL 1
+	Bsr square
+	LDR RR
+	LDS 0
+	LDLA 2
+	STA 0
+	AJS -1
+	LDL 1
+	Bsr abs
+	LDR RR
+	LDS 0
+	LDLA 2
+	STA 0
+	AJS -1
+	LDL 1
+	Bsr fac
+	LDR RR
+	LDS 0
+	LDLA 2
+	STA 0
+	AJS -1
+	Bsr lazyEvaluation
+	LDR RR
+	LDS 0
+	LDLA 3
+	STA 0
+	AJS -1
+	LDC 0
+	LDS 0
+	LDLA 4
+	STA 0
+	BRA 24
+	LDL 1
+	LDC 5
+	ADD
+	LDS 0
+	LDLA 1
+	STA 0
+	AJS -1
+	LDL 4
+	LDC 1
+	ADD
+	LDS 0
+	LDLA 4
+	STA 0
+	LDL 4
+	LDC 5
+	LT
+	BRT -31
+	LDL 1
+	LDC 3
+	ADD
+	TRAP 0
+	LDR RR
+	AJS -1
+	UNLINK
+	STS 0
+	AJS 1
+	RET
+square:
+	LINK 0
+	LDL -2
+	LDL -2
+	MUL
+	LDS 0
+	LDLA -2
+	STA 0
+	AJS -1
+	LDL -2
+	STR RR
+	UNLINK
+	STS -1
+	AJS 0
+	RET
+	UNLINK
+	STS -1
+	AJS 0
+	RET
+abs:
+	LINK 0
+	LDL -2
+	LDC 0
+	LT
+	BRF 15
+	LDC 0
+	LDL -2
+	SUB
+	LDS 0
+	LDLA -2
+	STA 0
+	AJS -1
+	BRA 0
+	LDL -2
+	STR RR
+	UNLINK
+	STS -1
+	AJS 0
+	RET
+	UNLINK
+	STS -1
+	AJS 0
+	RET
+lazyEvaluation:
+	LINK 0
+	LDC 1
+	LDC 1
+	BRT 3
+	LDC 0
+	OR
+	STR RR
+	UNLINK
+	STS 0
+	AJS 1
+	RET
+	UNLINK
+	STS 0
+	AJS 1
+	RET
+fac:
+	LINK 2
+	LDC 1
+	LDS 0
+	LDLA 2
+	STA 0
+	AJS -1
+	LDC 1
+	LDS 0
+	LDLA 1
+	STA 0
+	AJS -1
+	BRA 26
+	LDL 1
+	LDL 2
+	MUL
+	LDS 0
+	LDLA 1
+	STA 0
+	AJS -1
+	LDL 2
+	LDC 1
+	ADD
+	LDS 0
+	LDLA 2
+	STA 0
+	AJS -1
+	LDL 2
+	LDL -2
+	LE
+	BRT -33
+	LDL 1
+	STR RR
+	UNLINK
+	STS -1
+	AJS 0
+	RET
+	UNLINK
+	STS -1
+	AJS 0
+	RET

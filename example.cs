@@ -4,9 +4,15 @@ class Hello
     
     void main()
     {
-        int b;
-        b = 1;
+        blob();
+		int x;
+		x = 12;
     }
+	
+	void blob()
+	{
+		
+	}
     
     int square( int x )
     {
@@ -14,6 +20,12 @@ class Hello
         y = x*x;
         return y;   
     }
+	//test
+	
+	int onzin()
+	{
+		return 3;
+	}
 
     int abs(int x)
     {

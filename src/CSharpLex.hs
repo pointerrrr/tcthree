@@ -10,9 +10,10 @@ data Token = POpen    | PClose      -- parentheses     ()
            | COpen    | CClose      -- curly braces    {}
            | Comma    | Semicolon
            | KeyIf    | KeyElse
-           | KeyWhile | KeyReturn
-           | KeyTry   | KeyCatch
-           | KeyClass | KeyVoid
+           | KeyWhile | KeyFor
+           | KeyReturn| KeyTry
+           | KeyCatch | KeyClass
+           | KeyVoid
            | StdType   String       -- the 8 standard types
            | Operator  String       -- the 15 operators
            | UpperId   String       -- uppercase identifiers
@@ -52,12 +53,15 @@ terminals =
     , ( KeyCatch  , "catch"  )
     , ( KeyClass  , "class"  )
     , ( KeyVoid   , "void"   )
+    , ( KeyFor    , "for"    )
     ]
 
-
 lexWhiteSpace :: Parser Char String
-lexWhiteSpace = greedy (satisfy isSpace)
-
+lexWhiteSpace = greedy (satisfy isSpace)    
+    
+lexWhiteSpaceAndComments :: Parser Char String
+lexWhiteSpaceAndComments = lexWhiteSpace <* greedy (lexComment <* lexWhiteSpace)
+    
 lexComment :: Parser Char String
 lexComment = token "//" <* greedy (satisfy (/= '\n'))
 
@@ -103,7 +107,7 @@ lexToken = greedyChoice
              ]
 
 lexicalScanner :: Parser Char [Token]
-lexicalScanner = lexWhiteSpace *> greedy (lexToken <* lexWhiteSpace) <* eof
+lexicalScanner = lexWhiteSpace *> greedy (lexToken <* lexWhiteSpaceAndComments) <* eof
 
 
 sStdType :: Parser Token Token
@@ -161,7 +165,7 @@ equality = satisfy isEquality
     where
         isEquality (Operator "==") = True
         isEquality (Operator "!=") = True
-        isEquality _               = True
+        isEquality _               = False
         
 bitwiseXOR :: Parser Token Token
 bitwiseXOR = satisfy isBitwiseXOR
@@ -191,4 +195,7 @@ assignment = satisfy isAssignment
 
 sSemi :: Parser Token Token
 sSemi =  symbol Semicolon
+
+sComma :: Parser Token Token
+sComma = symbol Comma
 

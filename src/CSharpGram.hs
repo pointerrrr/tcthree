@@ -17,11 +17,13 @@ data Stat = StatDecl   Decl
           | StatWhile  Expr Stat
           | StatReturn Expr
           | StatBlock  [Stat]
+          | StatFor    Stat Expr Expr Expr Stat
           deriving Show
 
 data Expr = ExprConst  Token
           | ExprVar    Token
           | ExprOper   Token Expr Expr
+          | ExprCall   Token [Expr]
           deriving Show
 
 data Decl = Decl Type Token
@@ -42,6 +44,7 @@ pExprSimple :: Parser Token Expr
 pExprSimple =  ExprConst <$> sConst
            <|> ExprVar   <$> sLowerId
            <|> parenthesised pExpr
+           <|> ExprCall <$> sLowerId <*> parenthesised ( option (listOf pExpr (symbol Comma)) [])
 
 -- start assignment 2 (from lecture Parser Combinators (II) )
 -- source: https://msdn.microsoft.com/en-us/library/2bxt6kc4.aspx
@@ -84,6 +87,8 @@ pStat :: Parser Token Stat
 pStat =  StatExpr <$> pExpr <*  sSemi
      <|> StatIf     <$ symbol KeyIf     <*> parenthesised pExpr <*> pStat <*> optionalElse
      <|> StatWhile  <$ symbol KeyWhile  <*> parenthesised pExpr <*> pStat
+     <|> StatFor    <$ symbol KeyFor    <* symbol POpen
+                                        <*> pStatDecl <*> pExpr <* sSemi <*> pExpr <* sSemi <*> pExpr <* symbol PClose <*> pStat
      <|> StatReturn <$ symbol KeyReturn <*> pExpr               <*  sSemi
      <|> pBlock
      where optionalElse = option ((\_ x -> x) <$> symbol KeyElse <*> pStat) (StatBlock [])
