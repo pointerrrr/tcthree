@@ -1,91 +1,14 @@
 	Bsr main
 	HALT
 main:
-	Bsr blob
-	LDR R3
-	AJS -1
-	LDC 12
+	LDC -1
+	LDS 0
+	BRT 3
+	LDC -1
+	OR
 	LDS 0
 	LDLA 37
 	STA 0
 	AJS -1
 	AJS 0
-	RET
-blob:
-	AJS 0
-	RET
-square:
-	LDS -1
-	LDL 37
-	LDL 37
-	MUL
-	LDS 0
-	LDLA 37
-	STA 0
-	AJS -1
-	LDL 37
-	STR R3
-	RET
-	AJS -1
-	RET
-onzin:
-	LDC 3
-	STR R3
-	RET
-	AJS 0
-	RET
-abs:
-	LDS -1
-	LDL 37
-	LDC 0
-	LT
-	BRF 15
-	LDC 0
-	LDL 37
-	SUB
-	LDS 0
-	LDLA 37
-	STA 0
-	AJS -1
-	BRA 0
-	LDL 37
-	STR R3
-	RET
-	AJS -1
-	RET
-fac:
-	LDS -1
-	LDC 1
-	LDS 0
-	LDLA 37
-	STA 0
-	AJS -1
-	LDC 1
-	LDS 0
-	LDLA 37
-	STA 0
-	AJS -1
-	BRA 26
-	LDL 37
-	LDL 37
-	MUL
-	LDS 0
-	LDLA 37
-	STA 0
-	AJS -1
-	LDL 37
-	LDC 1
-	ADD
-	LDS 0
-	LDLA 37
-	STA 0
-	AJS -1
-	LDL 37
-	LDL 37
-	LE
-	BRT -33
-	LDL 37
-	STR R3
-	RET
-	AJS -1
 	RET

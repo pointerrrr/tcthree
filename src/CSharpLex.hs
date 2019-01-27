@@ -56,12 +56,12 @@ terminals =
     , ( KeyFor    , "for"    )
     ]
 
+lexCleanup :: Parser Char String
+lexCleanup = lexWhiteSpace <* greedy (lexComment <* lexWhiteSpace)
+    
 lexWhiteSpace :: Parser Char String
-lexWhiteSpace = greedy (satisfy isSpace)    
-    
-lexWhiteSpaceAndComments :: Parser Char String
-lexWhiteSpaceAndComments = lexWhiteSpace <* greedy (lexComment <* lexWhiteSpace)
-    
+lexWhiteSpace = greedy (satisfy isSpace)
+
 lexComment :: Parser Char String
 lexComment = token "//" <* greedy (satisfy (/= '\n'))
 
@@ -86,7 +86,6 @@ lexEnum f xs = f <$> choice (map keyword xs)
 lexTerminal :: Parser Char Token
 lexTerminal = choice [t <$ keyword s | (t,s) <- terminals]
 
-
 stdTypes :: [String]
 stdTypes = ["int", "long", "double", "float", "byte", "short", "bool", "char"]
 
@@ -106,8 +105,9 @@ lexToken = greedyChoice
              , lexUpperId
              ]
 
+-- assignment 3
 lexicalScanner :: Parser Char [Token]
-lexicalScanner = lexWhiteSpace *> greedy (lexToken <* lexWhiteSpaceAndComments) <* eof
+lexicalScanner = lexWhiteSpace *> greedy (lexToken <* lexCleanup) <* eof
 
 
 sStdType :: Parser Token Token
@@ -125,6 +125,7 @@ sLowerId = satisfy isLowerId
     where isLowerId (LowerId _) = True
           isLowerId _           = False
 
+-- assignment 1          
 sConst :: Parser Token Token
 sConst  = satisfy isConst
     where isConst (ConstInt  _) = True
@@ -132,10 +133,9 @@ sConst  = satisfy isConst
           isConst (ConstChar _) = True
           isConst _             = False
 
--- start assignment 2
+-- assignment 2
 -- type of operators source: https://msdn.microsoft.com/en-us/library/2bxt6kc4.aspx
 
-          
 multiplicative :: Parser Token Token
 multiplicative = satisfy isMultiplicative
     where
@@ -190,12 +190,6 @@ assignment = satisfy isAssignment
     where
         isAssignment (Operator "=") = True
         isAssignment _              = False
-        
--- end assignment 2
 
 sSemi :: Parser Token Token
 sSemi =  symbol Semicolon
-
-sComma :: Parser Token Token
-sComma = symbol Comma
-

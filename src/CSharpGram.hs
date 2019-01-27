@@ -46,7 +46,7 @@ pExprSimple =  ExprConst <$> sConst
            <|> parenthesised pExpr
            <|> ExprCall <$> sLowerId <*> parenthesised ( option (listOf pExpr (symbol Comma)) [])
 
--- start assignment 2 (from lecture Parser Combinators (II) )
+-- start assignment 2 (from lecture Parser Combinators (II) ) + assignment 4
 -- source: https://msdn.microsoft.com/en-us/library/2bxt6kc4.aspx
 
 pExpr :: Parser Token Expr
@@ -73,8 +73,6 @@ pAdditive = chainl pMultiplicative (ExprOper <$> additive)
 pMultiplicative :: Parser Token Expr
 pMultiplicative = chainl pExprSimple (ExprOper <$> multiplicative)
 
--- end assignment 2
-
 pMember :: Parser Token Member
 pMember =  MemberD <$> pDeclSemi
        <|> pMeth
@@ -97,7 +95,6 @@ pStat =  StatExpr <$> pExpr <*  sSemi
 pBlock :: Parser Token Stat
 pBlock = StatBlock <$> braced (many pStatDecl)
 
-
 pMeth :: Parser Token Member
 pMeth = MemberM <$> methRetType <*> sLowerId <*> methArgList <*> pBlock
     where
@@ -110,7 +107,6 @@ pType0 =  TypePrim <$> sStdType
 
 pType :: Parser Token Type
 pType = foldr (const TypeArray) <$> pType0 <*> many (bracketed (succeed ()))
-
 
 pDecl :: Parser Token Decl
 pDecl = Decl <$> pType <*> sLowerId

@@ -1,0 +1,21 @@
+	Bsr main
+	HALT
+main:
+	LDC 3
+	LDC 5
+	MUL
+	LDC 2
+	ADD
+	TRAP 0
+	LDR R3
+	AJS -1
+	LDC 3
+	LDC 2
+	ADD
+	LDC 5
+	EQ
+	TRAP 0
+	LDR R3
+	AJS -1
+	AJS 0
+	RET

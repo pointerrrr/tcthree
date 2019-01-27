@@ -12,8 +12,6 @@ import SSM
 data ValueOrAddress = Value | Address
     deriving Show
     
-type Env = Map String Int
-
 codeAlgebra :: CSharpAlgebra Code Code Code (ValueOrAddress -> Code)
 codeAlgebra =
     ( fClas
@@ -52,7 +50,8 @@ fStatWhile e s1 = [BRA n] ++ s1 ++ c ++ [BRT (-(n + k + 2))]
     where
         c = e Value
         (n, k) = (codeSize s1, codeSize c)
-        
+
+-- assignment 5        
 fStatFor :: Code -> (ValueOrAddress -> Code) -> (ValueOrAddress -> Code) -> (ValueOrAddress -> Code) -> Code -> Code
 fStatFor d1 e1 e2 e3 s = (d1 ++ (e1 Value) ++ [BRA (blockSize + incrementSize)] ++ s ++ increment ++ test ++ [BRT (-(blockSize + testSize + incrementSize + 2))])
     where
@@ -62,36 +61,40 @@ fStatFor d1 e1 e2 e3 s = (d1 ++ (e1 Value) ++ [BRA (blockSize + incrementSize)] 
         testSize  = codeSize (e2 Value)
         incrementSize = codeSize (e3 Value)
 
+-- assignment 9
 fStatReturn :: (ValueOrAddress -> Code) -> Code
 fStatReturn e = e Value ++ [STR R3] ++ [RET]
 
 fStatBlock :: [Code] -> Code
 fStatBlock = concat
 
+-- assignment 1
 fExprCon :: Token -> ValueOrAddress -> Code
 fExprCon (ConstInt n) va = [LDC n]
 fExprCon (ConstBool b) va = [LDC (boolToInt b)]
 fExprCon (ConstChar c) va = [LDC (ord c)]
 
+boolToInt :: Bool -> Int
+boolToInt False = 0
+boolToInt True  = -1
+
+-- assignment 6 + 8 + 9
 fMethCall :: Token -> [ValueOrAddress -> Code] -> ValueOrAddress -> Code
 fMethCall (LowerId label) es va = concatMap (\f -> f va) es ++
                                     (if label == "print"
                                     then replicate (length es) (TRAP 0)
                                     else [Bsr label]) ++ [LDR R3]
 
-boolToInt :: Bool -> Int
-boolToInt False = 0
-boolToInt True  = -1
-
 fExprVar :: Token -> ValueOrAddress -> Code
 fExprVar (LowerId x) va = let loc = 37 in case va of
                                               Value    ->  [LDL  loc]
                                               Address  ->  [LDLA loc]
 
+-- assignment 7
 fExprOp :: Token -> (ValueOrAddress -> Code) -> (ValueOrAddress -> Code) -> ValueOrAddress -> Code
 fExprOp (Operator "=")  e1 e2 va = e2 Value ++ [LDS 0] ++ e1 Address ++ [STA 0]
-fExprOp (Operator "||") e1 e2 va = e1 Value ++ e1 Value ++ [BRT (codeSize (e2 Value) + 1)] ++ e2 Value ++ [OR]
-fExprOp (Operator "&&") e1 e2 va = e1 Value ++ e1 Value ++ [BRF (codeSize (e2 Value) + 1)] ++ e2 Value ++ [AND]
+fExprOp (Operator "||") e1 e2 va = e1 Value ++ [LDS 0] ++ [BRT (codeSize (e2 Value) + 1)] ++ e2 Value ++ [OR]
+fExprOp (Operator "&&") e1 e2 va = e1 Value ++ [LDS 0] ++ [BRF (codeSize (e2 Value) + 1)] ++ e2 Value ++ [AND]
 fExprOp (Operator op)   e1 e2 va = e1 Value ++ e2 Value ++ [opCodes ! op]
 
 

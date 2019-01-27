@@ -1,0 +1,47 @@
+	Bsr main
+	HALT
+main:
+	LDC 2
+	LDC 3
+	ADD
+	TRAP 0
+	LDR R3
+	AJS -1
+	LDC 97
+	TRAP 0
+	LDR R3
+	AJS -1
+	LDC -1
+	LDS 0
+	BRF 3
+	LDC -1
+	AND
+	TRAP 0
+	LDR R3
+	AJS -1
+	LDC -1
+	LDS 0
+	BRF 3
+	LDC 0
+	AND
+	TRAP 0
+	LDR R3
+	AJS -1
+	LDC -1
+	LDS 0
+	BRT 3
+	LDC 0
+	OR
+	TRAP 0
+	LDR R3
+	AJS -1
+	LDC 0
+	LDS 0
+	BRT 3
+	LDC 0
+	OR
+	TRAP 0
+	LDR R3
+	AJS -1
+	AJS 0
+	RET
